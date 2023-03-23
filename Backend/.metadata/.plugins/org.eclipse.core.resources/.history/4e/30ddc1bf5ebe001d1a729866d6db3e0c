@@ -1,0 +1,38 @@
+package com.app.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.app.entity.Content;
+import com.app.service.ArtistService;
+import com.app.service.ContentService;
+import com.app.service.ReviewService;
+
+@RestController
+@RequestMapping("/content")
+@CrossOrigin(origins = "http://localhost:3000")
+public class ContentController {
+
+	@Autowired
+	private ContentService contentSer;
+	
+	@Autowired
+	private ReviewService reviewSer;
+	
+	@Autowired
+	private ArtistService artistSer;
+	
+	public ContentController() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	@GetMapping
+	public List<Content> getAllContent(){
+		return contentSer.getFullContent();
+	}
+}

@@ -1,0 +1,100 @@
+package com.app.service;
+
+import java.util.List;
+import java.util.Optional;
+
+import javax.transaction.Transactional;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.app.custom_exception.ResourceAddingFailedException;
+import com.app.custom_exception.ResourceNotFoundException;
+import com.app.dto.ReviewDto;
+import com.app.entity.Content;
+import com.app.entity.Review;
+import com.app.entity.User;
+import com.app.repository.ContentRepository;
+import com.app.repository.ReviewRepository;
+import com.app.repository.UserRepository;
+
+import io.swagger.v3.oas.models.security.SecurityScheme.In;
+
+@Service
+@Transactional
+public class ReviewServiceImpl implements ReviewService {
+
+	@Autowired
+	private ModelMapper mapper;
+	
+	@Autowired 
+	private ReviewRepository reviewRepo;
+	
+	@Autowired 
+	private UserRepository userRepo;
+	
+	@Autowired 
+	private ContentRepository contentRepo;
+	
+	public ReviewServiceImpl() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	
+	@Override
+	public String delreview(Integer id) {
+		String mesg = "Review Deletion Failed..!!!!";
+		if(reviewRepo.existsById(id)) {
+			reviewRepo.deleteById(id);
+			mesg = "Review Deletion Successfull...!!!!";
+		}
+		return mesg;
+	}
+
+
+	@Override
+	public List<Review> getReviews() {
+		return reviewRepo.findAll();
+	}
+
+
+	@Override
+	public Optional<Review> findReviewById(Integer id) {
+		return reviewRepo.findById(id);
+	}
+
+
+	@Override
+	public ReviewDto addReview(ReviewDto newRev, Integer userId, Integer conId) {
+		User user = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
+		Content content = contentRepo.findById(conId).orElseThrow(() -> new ResourceNotFoundException("Content Not Found"));
+		if(user != null && content != null) {
+			Review review = mapper.map(newRev, Review.class);
+			review.setUser(user);
+			review.setContent(content);
+			return mapper.map(reviewRepo.save(review),ReviewDto.class);
+		}
+		throw new ResourceAddingFailedException("Review Adding Failed..!!!");
+		
+	}
+
+
+	@Override
+	public Review updateReview(ReviewDto revDto) {
+		Review review = reviewRepo.findById(revDto.getId()).orElseThrow(() -> new ResourceNotFoundException("Review Not Found"));
+		
+		if(review != null) {
+			review.setTitle(revDto.getTitle());
+			review.setReview(revDto.getReview());
+			review.setRating(revDto.getRating());
+			review.setTimestamp(revDto.getTimestamp());
+			return reviewRepo.save(review);
+		}
+		throw new ResourceAddingFailedException("Failed to Update Review..!!");
+		
+		
+	}
+
+	
+}

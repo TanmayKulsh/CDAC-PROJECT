@@ -1,0 +1,233 @@
+package com.app.dto;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
+import javax.validation.constraints.Pattern;
+
+import org.aspectj.weaver.tools.Trace;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.app.entity.BaseEntity;
+import com.app.entity.Gender;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+//@NoArgsConstructor 
+//@Getter 
+//@Setter
+//@ToString(exclude = "password")
+//@AllArgsConstructor
+public class UserDto extends BaseEntity{
+
+	@NotBlank(message = "First name can't be blank")
+	@Length(min=4,max=20,message = "Invalid first name!!!!!!")
+	@Column(name = "first_name", length = 20)
+	private String firstNAme;
+	@NotBlank(message = "Last  name can't be blank")
+	@Column(name = "last_name", length = 20)
+	private String lastName;
+	@Column
+	private LocalDate dob;
+	@Column(length = 10)
+	@Enumerated(EnumType.STRING)
+	private Gender gender;
+	@Column(length = 20, unique = true)
+	@Email(message = "Invalid email format")
+	private String email;
+	@Column(length = 20)
+	@Pattern(regexp = "((?=.*\\d)(?=.*[a-z])(?=.*[#@$*]).{5,20})",message = "Invalid Password !")
+	@JsonProperty(access = Access.WRITE_ONLY)
+	private String password;
+	
+	@Column
+	private Boolean  premium = false;
+	
+	@NotNull(message = "Reg Date must be supplied")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@Past(message = "Invalid Date!")
+	private LocalDate regDate;
+	
+	@UpdateTimestamp
+	private LocalDate lastLogin;
+	
+	@Column
+	private Boolean isActive = true;
+	
+	
+	public UserDto() {
+		// TODO Auto-generated constructor stub
+	}
+
+
+	public UserDto(
+			@NotBlank(message = "First name can't be blank") @Length(min = 4, max = 20, message = "Invalid first name!!!!!!") String firstNAme,
+			@NotBlank(message = "Last  name can't be blank") String lastName, LocalDate dob, Gender gender,
+			@Email(message = "Invalid email format") String email,
+			@Pattern(regexp = "((?=.*\\d)(?=.*[a-z])(?=.*[#@$*]).{5,20})", message = "Invalid Password !") String password,
+			Boolean premium,
+			@NotNull(message = "Reg Date must be supplied") @Past(message = "Invalid Date!") LocalDate regDate,
+			LocalDate lastLogin, Boolean isActive) {
+		super();
+		this.firstNAme = firstNAme;
+		this.lastName = lastName;
+		this.dob = dob;
+		this.gender = gender;
+		this.email = email;
+		this.password = password;
+		this.premium = false;
+		this.regDate = regDate;
+		this.lastLogin = lastLogin;
+		this.isActive = isActive;
+	}
+
+
+	public String getFirstNAme() {
+		return firstNAme;
+	}
+
+
+	public void setFirstNAme(String firstNAme) {
+		this.firstNAme = firstNAme;
+	}
+
+
+	public String getLastName() {
+		return lastName;
+	}
+
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+
+	public LocalDate getDob() {
+		return dob;
+	}
+
+
+	public void setDob(LocalDate dob) {
+		this.dob = dob;
+	}
+
+
+	public Gender getGender() {
+		return gender;
+	}
+
+
+	public void setGender(Gender gender) {
+		this.gender = gender;
+	}
+
+
+	public String getEmail() {
+		return email;
+	}
+
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+
+	public String getPassword() {
+		return password;
+	}
+
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
+	public Boolean getPremium() {
+		return premium;
+	}
+
+
+	public void setPremium(Boolean premium) {
+		this.premium = premium;
+	}
+
+
+	public LocalDate getRegDate() {
+		return regDate;
+	}
+
+
+	public void setRegDate(LocalDate regDate) {
+		this.regDate = regDate;
+	}
+
+
+	public LocalDate getLastLogin() {
+		return lastLogin;
+	}
+
+
+	public void setLastLogin(LocalDate lastLogin) {
+		this.lastLogin = lastLogin;
+	}
+
+
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+
+
+
+
+	@Override
+	public String toString() {
+		return "User [firstNAme=" + firstNAme + ", lastName=" + lastName + ", dob=" + dob + ", gender=" + gender
+				+ ", email=" + email + ", premium=" + premium + ", regDate=" + regDate + ", lastLogin=" + lastLogin
+				+ ", isActive=" + isActive + "]";
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+}

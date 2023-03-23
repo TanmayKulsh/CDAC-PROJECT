@@ -1,0 +1,95 @@
+package com.app.service;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.transaction.Transactional;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.app.dto.ContentDto;
+import com.app.entity.Content;
+import com.app.repository.ContentRepository;
+
+@Service
+@Transactional
+public class ContentServiceImpl implements ContentService {
+
+	@Value("${content.upload.folder}")
+	private String folderName;
+	
+	@Autowired
+	private ModelMapper mapper;
+	
+	@Autowired
+	private ContentRepository contentRepo;
+	
+	@PostConstruct
+	public void myInit() {
+		System.out.println("in myInit " + folderName);
+		// chk of folder exists --o.w create one!
+		File path = new File(folderName);
+		if (!path.exists()) {
+			path.mkdirs();
+		} else
+			System.out.println("folder alrdy exists....");
+	}
+	
+	
+	
+	
+	@Override
+	public Content addContent(ContentDto newContent) {
+		Content content = mapper.map(newContent, Content.class);
+		return contentRepo.save(content);
+	}
+	
+	
+	@Override
+	public Content addImageToContent(Integer content_id ,MultipartFile imageFile) throws IOException {
+		Content content = mapper.map(newContent, Content.class);
+		System.out.println(newContent);
+		contentRepo.save(content);
+		String targetPath = folderName + File.separator + imageFile.getOriginalFilename();
+		System.out.println(targetPath);
+		// copy image file contents to the specified path
+		Files.copy(imageFile.getInputStream(), Paths.get(targetPath), StandardCopyOption.REPLACE_EXISTING);
+		//OR for DB
+		/*
+		 * Emp entity :Add @Lob private  byte[] contents; emp.setContents(imageFile.getBytes());
+		 */
+		// => success
+		// save image path in DB
+		content.setPosterLink(targetPath);
+		return content;
+	}
+
+
+	@Override
+	public String delContent(Integer id) {
+		String mesg = "Deletion Failed....!!!!";
+		if(contentRepo.existsById(id)) {
+			contentRepo.deleteById(id);
+			mesg = "Deletion Successfull....!!!!";
+		}
+		return mesg;
+	}
+
+	@Override
+	public List<Content> getContent() {
+		// TODO Auto-generated method stub
+		return contentRepo.findAll();
+	}
+	
+	
+
+}

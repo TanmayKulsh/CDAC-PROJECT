@@ -1,0 +1,50 @@
+package com.app.service;
+
+import java.util.List;
+import java.util.Optional;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.app.dto.CommentDto;
+import com.app.entity.Comment;
+import com.app.repository.CommentRepository;
+
+@Service
+@Transactional
+public class CommentServiceImpl implements CommentService {
+
+	@Autowired
+	private CommentRepository commentRepo;
+	
+	@Override
+	public String delcomment(Integer id) {
+		String mesg = "Comment Deletion Failed..!!!!";
+		if(commentRepo.existsById(id)) {
+			commentRepo.deleteById(id);
+			mesg = "Comment Deletion Successfull...!!!!";
+		}
+		return mesg;
+	}
+
+	@Override
+	public List<Comment> getComments() {
+		// TODO Auto-generated method stub
+		return commentRepo.findAll();
+	}
+
+	@Override
+	public Optional<Comment> findCommentById(Integer id) {
+		// TODO Auto-generated method stub
+		return commentRepo.findById(id);
+	}
+
+	@Override
+	public Comment addComment(CommentDto newComment, Integer userId, Integer revId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

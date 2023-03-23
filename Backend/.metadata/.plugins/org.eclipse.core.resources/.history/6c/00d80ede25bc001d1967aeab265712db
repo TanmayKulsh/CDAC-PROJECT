@@ -1,0 +1,226 @@
+package com.app.controller;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.app.custom_exception.ResourceNotFoundException;
+import com.app.dto.ApiResponse;
+import com.app.dto.ArtistDto;
+import com.app.dto.ContentDto;
+import com.app.dto.LoginDto;
+import com.app.dto.UserSpecificResponse;
+import com.app.entity.Admin;
+import com.app.entity.Artist;
+import com.app.entity.Comment;
+import com.app.entity.Content;
+import com.app.entity.ContentType;
+import com.app.entity.Review;
+import com.app.entity.User;
+import com.app.service.AdminService;
+import com.app.service.ArtistService;
+import com.app.service.CommentService;
+import com.app.service.ContentService;
+import com.app.service.ReviewService;
+import com.app.service.UserService;
+
+import io.swagger.v3.oas.models.security.SecurityScheme.In;
+
+@RestController
+@RequestMapping("/admin")
+public class AdminController {
+
+	@Autowired
+	private UserService userSer;
+	
+	@Autowired
+	private CommentService commentSer;
+	
+	@Autowired
+	private AdminService adminSer;
+	
+	@Autowired
+	private ContentService contentSer;
+	
+	@Autowired
+	private ReviewService reviewSer;
+	
+	@Autowired
+	private ArtistService artistSer;
+	
+	@GetMapping
+	public List<Admin> getAllAdmin(){
+		return adminSer.getAllAdmin();
+	}
+	
+	@GetMapping("/users")
+	public List<User> getAllUsers()
+	{
+		return userSer.getAllUserDetails();
+	}
+	
+	@GetMapping("/content")
+	public List<Content> getAllContent(){
+		return contentSer.getContent();
+	}
+	
+	@GetMapping("/comment")
+	public List<Comment> getAllComment(){
+		return commentSer.getComments();
+	}
+	
+	@GetMapping("/artist")
+	public List<Artist> getAllArtist(){
+		return artistSer.getArtist();
+	}
+	
+	@GetMapping("/review")
+	public List<Review> getAllReviews(){
+		return reviewSer.getReviews();
+	}
+	
+	@PostMapping
+	public Admin addAdmin(@RequestBody Admin newAdmin) {
+		return adminSer.addAdmin(newAdmin);
+	}
+	
+	@PostMapping("/signin")
+	public ResponseEntity<?> adminSignIn(@RequestBody LoginDto dto){
+		return ResponseEntity.ok(adminSer.adminSignIn(dto));
+	}
+	
+	@PostMapping("/addcontent")
+	public ResponseEntity<?> addContent(@RequestBody ContentDto newContent) {
+			
+		return ResponseEntity.ok(contentSer.addContent(newContent)) ;
+	}
+	
+	@PutMapping(value = "/{conId}/addImage", consumes = "multipart/form-data")
+	public ResponseEntity<?> addImageToContent(@RequestParam MultipartFile file, @PathVariable Integer conId) throws IOException {
+		return new ResponseEntity<>(contentSer.addImageToContent(conId, file), HttpStatus.CREATED);
+	}
+	
+	
+	@PostMapping(value = "/addContentWithImage",consumes = "multipart/form-data")
+	public ResponseEntity<?> addContentWithImage(@RequestParam String contentName,
+												 @RequestParam ContentType type,
+												 @RequestParam double length,
+												 @RequestParam String genre,
+												 @RequestParam MultipartFile file) throws IOException
+	{
+		return new ResponseEntity<>(contentSer.addContentWithImage(contentName,type,length,genre,file), HttpStatus.CREATED);
+	}
+	
+	@GetMapping(value = "/{conId}/image", produces = { MediaType.IMAGE_GIF_VALUE, 
+			MediaType.IMAGE_JPEG_VALUE,
+			MediaType.IMAGE_PNG_VALUE })
+	public ResponseEntity<?> serveImageFromServerSideFolder(@PathVariable Integer conId) throws IOException {
+		
+		return new ResponseEntity<>(contentSer.serveImage(conId), HttpStatus.OK);
+	}
+	
+	
+	@PostMapping("/addartist")
+	public ResponseEntity<?> addArtist(@RequestBody ArtistDto newArtist) {
+		return ResponseEntity.ok(artistSer.addArtist(newArtist));
+	}
+	
+	@DeleteMapping("/delcontent/{id}")
+	public ApiResponse deleteContent(@PathVariable Integer id) {
+		return new ApiResponse(contentSer.delContent(id));
+	}
+	
+
+	@DeleteMapping("/deluser/{id}")
+	public ApiResponse deleteUser(@PathVariable Integer id) {
+		return new ApiResponse(userSer.deleteUserDetails(id));
+	}
+	
+	@DeleteMapping("/delreview/{id}")
+	public ApiResponse deleteReview(@PathVariable Integer id) {
+		return new ApiResponse(reviewSer.delreview(id));
+	}
+	
+	@DeleteMapping("/delcomment/{id}")
+	public ApiResponse deleteComment(@PathVariable Integer id) {
+		return new ApiResponse(commentSer.delcomment(id));
+	}
+	
+	@DeleteMapping("/delartist/{id}")
+	public ApiResponse deleteArtist(@PathVariable Integer id) {
+		return new ApiResponse(artistSer.delartist(id));
+	}
+	
+	@PutMapping("/updateContent")
+	public Content updateContent(@RequestBody ContentDto dto) {
+		return contentSer.updateContent(dto);
+	}
+	
+	@PutMapping("/updateArtist")
+	public Artist updateArtist(@RequestBody ArtistDto dto) {
+		return artistSer.updateArtst(dto);
+	}
+	
+	@GetMapping("/user/{id}")
+	public ResponseEntity<?> findByUserId(@PathVariable Integer id) {
+		return ResponseEntity.ok(userSer.findUserById(id));
+	}
+	
+	@GetMapping("/content/{id}")
+	public ResponseEntity<?> findByContentId(@PathVariable Integer id) {
+		return ResponseEntity.ok(contentSer.findContentById(id));
+	}
+	
+	@GetMapping("/review/{id}")
+	public ResponseEntity<?> findByReviewId(@PathVariable Integer id) {
+		return ResponseEntity.ok(reviewSer.findReviewById(id));
+	}
+	
+	@GetMapping("/artist/{id}")
+	public ResponseEntity<?> findByArtistId(@PathVariable Integer id) {
+		return ResponseEntity.ok(artistSer.findArtistById(id));
+	}
+	
+	@GetMapping("/comment/{id}")
+	public ResponseEntity<?> findByCommentId(@PathVariable Integer id) {
+		return ResponseEntity.ok(commentSer.findCommentById(id));
+	}
+	
+	@GetMapping("/user/active")
+	public List<UserSpecificResponse> activeUser(){
+		Boolean active = true;
+		return userSer.getAllActiveUser(active);
+	}
+	
+	@GetMapping("/user/premium")
+	public List<UserSpecificResponse> premiumUser(){
+		Boolean active = true;
+		return userSer.getAllPremiumUser(active);
+	}
+	
+	@PostMapping(value = "/addWholeContent",consumes = "multipart/form-data")
+	public ResponseEntity<?> addWholeContent(@RequestParam String contentName,
+												 @RequestParam ContentType type,
+												 @RequestParam double length,
+												 @RequestParam String genre,
+												 @RequestParam List<Integer> artistId,
+												 @RequestParam MultipartFile file) throws IOException
+	{
+		return new ResponseEntity<>(contentSer.addContentWithImage(contentName,type,length,genre, artistId,file), HttpStatus.CREATED);
+	}
+}

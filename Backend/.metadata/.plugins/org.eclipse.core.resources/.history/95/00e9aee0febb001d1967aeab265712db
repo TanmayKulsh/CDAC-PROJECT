@@ -1,0 +1,11 @@
+package com.app.dto;
+
+public class Snippet {
+	public static void main(String[] args) {
+		return contentRepo.findAllByOrderByAvgRatingAsc()
+						.stream()
+						.map(c -> mapper.map(c, ContentDto.class))
+						.collect(Collectors.toList());
+	}
+}
+
