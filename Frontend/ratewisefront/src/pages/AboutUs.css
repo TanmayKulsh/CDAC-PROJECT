@@ -1,0 +1,17 @@
+.about-us-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  .about-us-container h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .about-us-container p {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  
